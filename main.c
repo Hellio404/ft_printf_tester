@@ -6,7 +6,7 @@
 /*   By: yfarini <yfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/01 16:59:15 by yfarini           #+#    #+#             */
-/*   Updated: 2019/11/02 00:14:05 by yfarini          ###   ########.fr       */
+/*   Updated: 2019/11/02 23:48:12 by yfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,9 @@
 #define   GREEN 	"\033[0;32m"
 #define   YELLOW 	"\033[0;33m"
 #define   RST		"\033[0m"
+
+
+
 int main()
 {
 	int		fp0 = open("TESTS",O_RDONLY);

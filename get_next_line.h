@@ -6,7 +6,7 @@
 /*   By: yfarini <yfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/25 10:02:12 by yfarini           #+#    #+#             */
-/*   Updated: 2019/10/27 10:28:09 by yfarini          ###   ########.fr       */
+/*   Updated: 2019/11/03 15:17:12 by yfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,14 @@
 # define END_OF_FILE    0
 # define FAILED		    -1
 
-# define MFD	1025
+# define MFD	64
 
 typedef unsigned char	t_bool;
 # define TRUE 1
 # define FALSE 0
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 256
+#  define BUFFER_SIZE 1
 # endif
 
 int		get_next_line(int fd, char **line);

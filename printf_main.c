@@ -6,23 +6,40 @@
 /*   By: yfarini <yfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/01 14:19:05 by yfarini           #+#    #+#             */
-/*   Updated: 2019/11/02 00:31:42 by yfarini          ###   ########.fr       */
+/*   Updated: 2019/11/03 16:13:05 by yfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include "ft_printf.h"
-
+#include <stdlib.h>
+#include <sys/types.h>
+#include <signal.h>
 pid_t   pid;
-bool    has_segfault;
+int    	sign;
+int		status;
 FILE	*fp;
 #define RED 	"\033[0;31m"
 #define GREEN 	"\033[0;32m"
 #define YELLOW 	"\033[0;33m"
 #define RST	"\033[0m"
+
+void	delay(unsigned int msec)
+{
+	clock_t s = clock();
+	while(((clock() - s) / CLOCKS_PER_SEC )* 1000 < msec)
+	{
+		status = -100;
+		waitpid(pid, &status, WNOHANG);
+		if (status != -100)
+			break;
+	}
+}
+
 #define SEGF(f)	do{\
 					if((pid = fork()) == -1)\
 						exit (EXIT_FAILURE);\
@@ -33,8 +50,12 @@ FILE	*fp;
 					}\
 					else\
 					{\
-						wait(&pid);\
-						has_segfault = WIFSIGNALED(pid);\
+						delay(50);\
+						status = -100;\
+						waitpid(pid, &status, WNOHANG);\
+						kill(pid, SIGKILL);\
+						waitpid(pid, &status, 0);\
+						sign = status == -100 ? 0 : status == 9 ? 2 : 1;\
 					}\
 				}while(0)
 
@@ -44,10 +65,13 @@ FILE	*fp;
 					fprintf(fp,__VA_ARGS__);\
 					fclose(fp);\
 				}while(0)
-#define T(...)    do{\
+
+#define T(...)	do{\
                     SEGF(printf("\tReturn: %d\n", ft_printf(__VA_ARGS__)));\
-					if(has_segfault)\
+					if(sign == 1)\
 						printf("SEGV\n");\
+					if(sign == 2)\
+						printf("TIMEOUT\n");\
 					SP("EXPECTED","\tReturn: %d\n", fprintf(fp, __VA_ARGS__));\
 					SP("TESTS","%s\n", #__VA_ARGS__);\
                 }while(0)
@@ -227,7 +251,7 @@ int main()
 	T("%04d", 100);
 	T("%02d", -100);
 	T("%03d", -100);
-	T("%04d", -100);
+	T("%05d", -100);
 	T("%04d", 0);
 	T("%01d", 0);
 	T("a%01da", 0);
