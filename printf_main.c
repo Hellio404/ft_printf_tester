@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   printf_main.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yfarini <yfarini@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/01 14:19:05 by yfarini           #+#    #+#             */
-/*   Updated: 2019/11/08 16:42:40 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2020/01/30 18:45:36 by yfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,37 +28,18 @@ FILE	*fp;
 #define YELLOW 	"\033[0;33m"
 #define RST	"\033[0m"
 
-void	delay(unsigned int msec)
-{
-	clock_t s = clock();
-	while(((clock() - s) / CLOCKS_PER_SEC )* 1000 < msec)
-	{
-		status = -100;
-		waitpid(pid, &status, WNOHANG);
-		if (status != -100)
-			break;
-	}
-}
 
-#define SEGF(f)	do{\
-					if((pid = fork()) == -1)\
-						exit (EXIT_FAILURE);\
-					if (pid == 0)\
-					{\
-						do{ f; }while(0);\
-						exit (EXIT_SUCCESS);\
-					}\
-					else\
-					{\
-						delay(50);\
-						status = -100;\
-						waitpid(pid, &status, WNOHANG);\
-						kill(pid, SIGKILL);\
-						waitpid(pid, &status, 0);\
-						sign = status == -100 ? 0 : status == 9 ? 2 : 1;\
-					}\
-				}while(0)
-
+# define SEGF(func) do { \
+	if ((pid = fork()) < 0) \
+		exit(EXIT_FAILURE); \
+	if (pid == 0) { \
+		do { func; } while(0); \
+		exit(EXIT_SUCCESS); \
+	} else { \
+		wait(&pid); \
+		sign = WIFSIGNALED(pid); \
+	} \
+} while(0)
 
 #define	SP(file,...)	do{\
 					fp = fopen(file, "a+");\
@@ -68,10 +49,8 @@ void	delay(unsigned int msec)
 
 #define T(...)	do{\
                     SEGF(printf("\tReturn: %d\n", ft_printf(__VA_ARGS__)));\
-					if(sign == 1)\
+					if(sign)\
 						printf("SEGV\n");\
-					if(sign == 2)\
-						printf("TIMEOUT\n");\
 					SP("EXPECTED","\tReturn: %d\n", fprintf(fp, __VA_ARGS__));\
 					SP("TESTS","%s\n", #__VA_ARGS__);\
                 }while(0)
